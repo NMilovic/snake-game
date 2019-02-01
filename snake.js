@@ -10,6 +10,9 @@ let movementTimeout; //Will be used to make intervals in which will snake change
 //Modal & Button
 let startBtn = document.getElementById('startButton');
 let modal = document.getElementById('modal');
+//Snake speed element
+let slider = document.getElementById('speedSlider').value;
+let snakeSpeed = slider;
 
 //Enable on click startGame
 startBtn.addEventListener('click', () => {
@@ -37,6 +40,10 @@ let direction = 'right';
 //directionSet will be used to forbid multiple key press without moveSnake
 let directionSet = false;
 let speed = 200;
+
+//score
+let score = 0;
+let bestScore = 0;
 
 //Apple functions
 //First function will be simple, it will take two numbers and randomly output value between them
@@ -92,6 +99,12 @@ function moveSnake(){
         if(i === 0 && snake[i].x === apple.x && snake[i].y === apple.y){
             //make snake longer
             snake.push({});
+            //increment score
+            score++;
+            //Check if current score > best score
+            if(bestScore <= score){
+                bestScore = score;
+            }
             //create new Apple
             createApple();
         } 
@@ -159,6 +172,8 @@ function startGame(){
     ];
     //initialize direction
     direction = 'right';
+    //initialize score
+    score = 0;
     //clear movement timeout
     window.clearTimeout(movementTimeout);
     //Calling createApple function so it can generate coordinate
@@ -173,8 +188,30 @@ function startGame(){
 
 //GameOver function
 function gameOver(){
+    let currentScore = document.getElementById('score');
+    let topScore = document.getElementById('bestScore');
+    let separator = document.getElementById('separator');
+
     window.cancelAnimationFrame(reqAnimation); //this will stop animation
     ctx.clearRect(0, 0, canvas.width, canvas.height); // this will clear canvas
     window.removeEventListener('keydown', onKeyDown); // this will disable keydown EventListener
     modal.style.display = 'block'; // this will display modal
+
+    currentScore.classList.remove('hide');
+    topScore.classList.remove('hide');
+    separator.classList.remove('hide');
+    currentScore.textContent = `You score: ${score}`;
+    topScore.textContent = `Best score: ${bestScore}`;
+}
+
+//Change Speed
+function changeSnakeSpeed(slider){
+    let step = 10;
+    let defaultSpeed = 200;
+    if(snakeSpeed < Number(slider.value)+1){
+        speed = defaultSpeed - slider.value * step;
+    }else{
+        speed += defaultSpeed - slider.value * step;
+    }
+    snakeSpeed = slider.value;
 }
