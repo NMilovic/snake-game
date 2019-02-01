@@ -5,6 +5,7 @@ const ctx = canvas.getContext('2d');
 
 //States
 let reqAnimation; //Will be used for requesting and clearing animation
+let movementTimeout; //Will be used to make intervals in which will snake change position
 
 
 //Size
@@ -70,9 +71,44 @@ function draw(){
         ctx.fillRect(s.x, s.y, size, size); //this will draw snake part
     }
 
+    reqAnimation = requestAnimationFrame(draw);
+}
+
+//moveSnake function
+function moveSnake(){
+    for(let i = snake.length - 1; i >= 0; i -= 1){
+        let s = snake[i];
+        if(i === 0){
+            switch(direction){
+                case 'right':
+                    if(s.x > canvas.width) s.x = 0;
+                    else s.x += size;
+                    break;
+                case 'down':
+                    if(s.y > canvas.height) s.y = 0;
+                    else s.y += size;
+                    break;
+                case 'left':
+                    if(s.x < 0) s.x = Math.round(canvas.width / size) * size;
+                    else s.x -= size;
+                    break;
+                case 'up':
+                    if(s.y < 0) s.y = Math.round(canvas.height / size) * size;
+                    else s.y -= size;
+            }
+        }else{
+            //move snake part to position of previuos(on nearer to head) part
+            snake[i].x = snake[i-1].x;
+            snake[i].y = snake[i-1].y;
+        }
+
+        movementTimeout = setTimeout(moveSnake, speed);
+    }
 }
 
 //Calling createApple function so it can generate coordinates
 createApple();
+//Set movement interval
+movementTimeout = setTimeout(moveSnake, speed);
 //Requesting animation
 reqAnimation = requestAnimationFrame(draw);
