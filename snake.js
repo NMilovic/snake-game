@@ -45,6 +45,31 @@ let speed = 200;
 let score = 0;
 let bestScore = 0;
 
+//walls
+let walls = false;
+let wallSize = {
+    w: ((canvas.width - Math.floor(canvas.width/size)*size) + size)/2,
+    h: ((canvas.height -Math.floor(canvas.height/size)*size) + size)/2
+};
+
+//walls on/off
+if(walls){
+    document.getElementById('walls-on-off').textContent = `Walls: ON`;
+}else{
+    document.getElementById('walls-on-off').textContent = `Walls: OFF`;
+}
+function changeWalls(elem){
+    let wallsOn = document.getElementById('wallsOn');
+    let wallsOff = document.getElementById('wallsOff');
+    if(wallsOn == elem){
+        walls = true;
+        document.getElementById('walls-on-off').textContent = `Walls: ON`;
+    }else{
+        walls = false;
+        document.getElementById('walls-on-off').textContent = `Walls: OFF`;
+    }
+}
+
 //Apple functions
 //First function will be simple, it will take two numbers and randomly output value between them
 function random(min, max){
@@ -56,31 +81,56 @@ function getAppleCoordinates (min, max){
     return Math.round(random(min, max) / min) * min; //expression
 }
 
+function getAppleCoordinatesWalls(cell, orientation){
+    return orientation + (Math.floor(Math.random() * cell) + 1) * size;
+}
+
 //Secound will generate coordinates for apple object
 function createApple(){
-    //Here we need to give apple object some coordinates so it can be drawn in canvas
-    apple.x = getAppleCoordinates(size, canvas.width - size);
-    apple.y = getAppleCoordinates(size, canvas.height - size);
-
+    let rows = (canvas.height - 2*wallSize.h) / size;
+    //creating apple when walls are ON
+    if(walls){
+        apple.x = getAppleCoordinatesWalls(30, wallSize.w);
+        apple.y = getAppleCoordinatesWalls(rows - 2, wallSize.h);
+    }else{
+        //Here we need to give apple object some coordinates so it can be drawn in canvas
+        apple.x = getAppleCoordinates(size, canvas.width - size);
+        apple.y = getAppleCoordinates(size, canvas.height - size);
+    }
     //Bonus Apple
     if(score % 5 === 0 && score !== 0){
-        bonusApple.x = getAppleCoordinates(size, canvas.width - size);
-        bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+        if(walls){
+            bonusApple.x = getAppleCoordinatesWalls(30, wallSize.w);
+            bonusApple.y = getAppleCoordinatesWalls(rows - 2, wallSize.h);
+        }else{
+            bonusApple.x = getAppleCoordinates(size, canvas.width - size);
+            bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+        }
     }
 
     //Also, here we can prevent apple spawning on any position that snake takes
     for(let i = 0; i < snake.length; i += 1){
         let s = snake[i];
         if(s.x === apple.x && s.y === apple.y){
-            apple.x = getAppleCoordinates(size, canvas.width - size);
-            apple.y = getAppleCoordinates(size, canvas.height - size);
+            if(walls){
+                apple.x = getAppleCoordinatesWalls(30, wallSize.w);
+                apple.y = getAppleCoordinatesWalls(rows - 2, wallSize.h);
+            }else{
+                apple.x = getAppleCoordinates(size, canvas.width - size);
+                apple.y = getAppleCoordinates(size, canvas.height - size);
+            }
         }
 
         //Bonus Apple
         if(score % 5 === 0 && score !== 0){
             if(s.x === apple.x && s.y === apple.y){
-                bonusApple.x = getAppleCoordinates(size, canvas.width - size);
-                bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+                if(walls){
+                    bonusApple.x = getAppleCoordinatesWalls(30, wallSize.w);
+                    bonusApple.y = getAppleCoordinatesWalls(rows - 2, wallSize.h);
+                }else{
+                    bonusApple.x = getAppleCoordinates(size, canvas.width - size);
+                    bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+                }
             }
         }
     }
@@ -99,6 +149,15 @@ function draw(){
     if(score % 5 === 0 && score !== 0){
         ctx.fillStyle = 'green';
         ctx.fillRect(bonusApple.x, bonusApple.y, size, size);
+    }
+
+    //walls
+    if(walls){
+        ctx.fillStyle = '#B70431';
+        ctx.fillRect(0, 0, wallSize.w, canvas.height);
+        ctx.fillRect(canvas.width - wallSize.w, 0, wallSize.w, canvas.height);
+        ctx.fillRect(wallSize.w, 0, canvas.width - 2*wallSize.w, wallSize.h);
+        ctx.fillRect(wallSize.w, canvas.height - wallSize.h, canvas.width - 2*wallSize.w, wallSize.h);
     }
 
     //Draw snake. Actually, here we need to walk through sanke array and draw part by part
@@ -140,22 +199,42 @@ function moveSnake(){
 
         const s = snake[i];
         if(i === 0){
-            switch(direction){
-                case 'right':
-                    if(s.x > canvas.width) s.x = 0;
-                    else s.x += size;
-                    break;
-                case 'down':
-                    if(s.y > canvas.height) s.y = 0;
-                    else s.y += size;
-                    break;
-                case 'left':
-                    if(s.x < 0) s.x = Math.round(canvas.width / size) * size;
-                    else s.x -= size;
-                    break;
-                case 'up':
-                    if(s.y < 0) s.y = Math.round(canvas.height / size) * size;
-                    else s.y -= size;
+            if(walls){
+                switch(direction){
+                    case 'right':
+                        if(s.x > canvas.width-wallSize.w-size) gameOver();
+                        else s.x += size;
+                        break;
+                    case 'down':
+                        if(s.y > canvas.height-wallSize.h-size) gameOver();
+                        else s.y += size;
+                        break;
+                    case 'left': 
+                        if(s.x < wallSize.w) gameOver();
+                        else s.x -= size;
+                        break;
+                    case 'up':
+                        if(s.y < wallSize.h) gameOver();
+                        else s.y -= size;
+                } 
+            }else{
+                switch(direction){
+                    case 'right':
+                        if(s.x > canvas.width) s.x = 0;
+                        else s.x += size;
+                        break;
+                    case 'down':
+                        if(s.y > canvas.height) s.y = 0;
+                        else s.y += size;
+                        break;
+                    case 'left':
+                        if(s.x < 0) s.x = Math.round(canvas.width / size) * size;
+                        else s.x -= size;
+                        break;
+                    case 'up':
+                        if(s.y < 0) s.y = Math.round(canvas.height / size) * size;
+                        else s.y -= size;
+                }
             }
 
             //Check if snake ate her tail
@@ -196,9 +275,11 @@ function onKeyDown(e){
 //StartGame function
 function startGame(){
     //initialize snake
-    snake = [
-        {x: 0, y: 0}
-    ];
+    if(walls){
+        snake = [{x:wallSize.w, y: wallSize.h}];
+    }else{
+        snake = [{x:0, y: 0}];
+    }
     //initialize direction
     direction = 'right';
     //initialize score
