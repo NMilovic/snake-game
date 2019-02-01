@@ -18,6 +18,12 @@
             <div class="slidecontainer">
               <input type="range" min="0" max="10" value="0" class="slider" id="speedSlider" onchange="changeSnakeSpeed(this)">
             </div>
+            <hr>
+            <section class="wallSection">
+                <button class="btn" onclick="changeWalls(this)" id="wallsOn">Walls</button>
+                <button class="btn" onclick="changeWalls(this)" id="wallsOff">Walls Free</button>
+                <p id="walls-on-off" style="text-align: center"></p>
+            </section>
             <hr><br>
             <button class="btn" id="startButton">Start</button>
         </div>
