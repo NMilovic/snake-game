@@ -79,7 +79,15 @@ function draw(){
 //moveSnake function
 function moveSnake(){
     for(let i = snake.length - 1; i >= 0; i -= 1){
-        let s = snake[i];
+        //This next few lines(next if block) will enable apple eating
+        if(i === 0 && snake[i].x === apple.x && snake[i].y === apple.y){
+            //make snake longer
+            snake.push({});
+            //create new Apple
+            createApple();
+        } 
+
+        const s = snake[i];
         if(i === 0){
             switch(direction){
                 case 'right':
@@ -98,15 +106,24 @@ function moveSnake(){
                     if(s.y < 0) s.y = Math.round(canvas.height / size) * size;
                     else s.y -= size;
             }
+
+            //Check if snake ate her tail
+            for(let i = 1; i < snake.length; i += 1){
+                if(snake[0].x === snake[i].x && snake[0].y === snake[i].y){
+                    window.cancelAnimationFrame(reqAnimation);
+                }
+            }
+
         }else{
             //move snake part to position of previuos(on nearer to head) part
             snake[i].x = snake[i-1].x;
             snake[i].y = snake[i-1].y;
         }
 
-        movementTimeout = setTimeout(moveSnake, speed);
-        directionSet = false;
     }
+    
+    movementTimeout = setTimeout(moveSnake, speed);
+    directionSet = false;
 }
 
 //onKeyDown function will be used to register key and change drection of snake
