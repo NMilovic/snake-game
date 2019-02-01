@@ -25,6 +25,8 @@ let bonusApple = {};
 //Direction & speed
 //When the game starts it will be nice to set some movement speed and starting direction in which will snake go by default
 let direction = 'right';
+//directionSet will be used to forbid multiple key press without moveSnake
+let directionSet = false;
 let speed = 200;
 
 //Apple functions
@@ -103,11 +105,30 @@ function moveSnake(){
         }
 
         movementTimeout = setTimeout(moveSnake, speed);
+        directionSet = false;
+    }
+}
+
+//onKeyDown function will be used to register key and change drection of snake
+function onKeyDown(e){
+    //next line will check if arrow keys are pressed; in other cases nothing will be happen 
+    if(e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'ArrowRight' || e.key === 'ArrowDown'){
+        if(!directionSet){
+            directionSet = true;
+            const newDirection = e.key.substring(5).toLowerCase(); //substring and toLowerCase will transform ArrowUp -> up, and all other keys
+
+            if (direction === 'left' && newDirection !== 'right') direction = newDirection;
+            if (direction === 'up' && newDirection !== 'down') direction = newDirection;
+            if (direction === 'down' && newDirection !== 'up') direction = newDirection;
+            if (direction === 'right' && newDirection !== 'left') direction = newDirection;
+        }
     }
 }
 
 //Calling createApple function so it can generate coordinates
 createApple();
+//Add onKeyDown EventListener
+window.addEventListener('keydown', onKeyDown);
 //Set movement interval
 movementTimeout = setTimeout(moveSnake, speed);
 //Requesting animation
