@@ -7,6 +7,15 @@ const ctx = canvas.getContext('2d');
 let reqAnimation; //Will be used for requesting and clearing animation
 let movementTimeout; //Will be used to make intervals in which will snake change position
 
+//Modal & Button
+let startBtn = document.getElementById('startButton');
+let modal = document.getElementById('modal');
+
+//Enable on click startGame
+startBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    startGame();
+});
 
 //Size
 const size = Math.floor(window.innerWidth/32); //grid cell size; 32 cells per row
@@ -110,7 +119,7 @@ function moveSnake(){
             //Check if snake ate her tail
             for(let i = 1; i < snake.length; i += 1){
                 if(snake[0].x === snake[i].x && snake[0].y === snake[i].y){
-                    window.cancelAnimationFrame(reqAnimation);
+                    gameOver();
                 }
             }
 
@@ -121,7 +130,7 @@ function moveSnake(){
         }
 
     }
-    
+
     movementTimeout = setTimeout(moveSnake, speed);
     directionSet = false;
 }
@@ -142,11 +151,30 @@ function onKeyDown(e){
     }
 }
 
-//Calling createApple function so it can generate coordinates
-createApple();
-//Add onKeyDown EventListener
-window.addEventListener('keydown', onKeyDown);
-//Set movement interval
-movementTimeout = setTimeout(moveSnake, speed);
-//Requesting animation
-reqAnimation = requestAnimationFrame(draw);
+//StartGame function
+function startGame(){
+    //initialize snake
+    snake = [
+        {x: 0, y: 0}
+    ];
+    //initialize direction
+    direction = 'right';
+    //clear movement timeout
+    window.clearTimeout(movementTimeout);
+    //Calling createApple function so it can generate coordinate
+    createApple();
+    //Add onKeyDown EventListener
+    window.addEventListener('keydown', onKeyDown);
+    //Set movement interval
+    movementTimeout = setTimeout(moveSnake, speed);
+    //Requesting animation
+    reqAnimation = requestAnimationFrame(draw);
+}
+
+//GameOver function
+function gameOver(){
+    window.cancelAnimationFrame(reqAnimation); //this will stop animation
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // this will clear canvas
+    window.removeEventListener('keydown', onKeyDown); // this will disable keydown EventListener
+    modal.style.display = 'block'; // this will display modal
+}
