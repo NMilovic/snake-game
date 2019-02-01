@@ -62,6 +62,11 @@ function createApple(){
     apple.x = getAppleCoordinates(size, canvas.width - size);
     apple.y = getAppleCoordinates(size, canvas.height - size);
 
+    //Bonus Apple
+    if(score % 5 === 0 && score !== 0){
+        bonusApple.x = getAppleCoordinates(size, canvas.width - size);
+        bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+    }
 
     //Also, here we can prevent apple spawning on any position that snake takes
     for(let i = 0; i < snake.length; i += 1){
@@ -69,6 +74,14 @@ function createApple(){
         if(s.x === apple.x && s.y === apple.y){
             apple.x = getAppleCoordinates(size, canvas.width - size);
             apple.y = getAppleCoordinates(size, canvas.height - size);
+        }
+
+        //Bonus Apple
+        if(score % 5 === 0 && score !== 0){
+            if(s.x === apple.x && s.y === apple.y){
+                bonusApple.x = getAppleCoordinates(size, canvas.width - size);
+                bonusApple.y = getAppleCoordinates(size, canvas.height - size);
+            }
         }
     }
 }
@@ -81,6 +94,12 @@ function draw(){
     //Draw apple
     ctx.fillStyle = '#B70431';
     ctx.fillRect(apple.x, apple.y, size, size);
+
+    //Bonus apple
+    if(score % 5 === 0 && score !== 0){
+        ctx.fillStyle = 'green';
+        ctx.fillRect(bonusApple.x, bonusApple.y, size, size);
+    }
 
     //Draw snake. Actually, here we need to walk through sanke array and draw part by part
     for(let i = 0; i < snake.length; i += 1){
@@ -108,6 +127,16 @@ function moveSnake(){
             //create new Apple
             createApple();
         } 
+
+        //If snake ate bonus apple
+        if(i === 0 && snake[i].x === bonusApple.x && snake[i].y === bonusApple.y){
+            snake.push({});
+            snake.push({});
+            score += 2;
+            if(bestScore <= score){
+                bestScore = score;
+            }
+        }
 
         const s = snake[i];
         if(i === 0){
