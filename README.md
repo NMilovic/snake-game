@@ -4,7 +4,7 @@ This is a very simple arcade snake game.
 
 ### Installation
 
-For clone of project run git clone *https://gitlab.com/nmilovic/snake-game.git* for HTTPS, or git clone *git@gitlab.com:nmilovic/snake-game.git* for SSH.
+For clone of project run git clone *https://github.com/NMilovic/snake-game.git* for HTTPS, or git clone *git@github.com:NMilovic/snake-game.git* for SSH.
 Then you can run index.html in your browser.
 
 ### Compatibility
